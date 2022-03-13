@@ -1,6 +1,7 @@
 import requests
 from flask import Flask
 from flask import render_template
+from random import shuffle
 
 app = Flask(__name__)
 
@@ -27,8 +28,10 @@ def get_spn(json_response):
 
 @app.route('/')
 def index():
+    files = list(map(lambda s: 'img/' + s + '.png', CITIES))
+    shuffle(files)
     return render_template('index.html',
-                           images_path=list(map(lambda s: 'img/' + s + '.png', CITIES)),
+                           images_path=files,
                            count=len(CITIES))
 
 
@@ -41,7 +44,6 @@ if __name__ == '__main__':
         }
 
         response = requests.get(GEOCODER_API_SERVER, params=geocoder_params)
-        print(response)
         if response:
             json_response = response.json()
 
@@ -61,6 +63,5 @@ if __name__ == '__main__':
 
             map_file = f"static/img/{city}.png"
             with open(map_file, "wb") as file:
-                print(cords)
                 file.write(response.content)
     app.run(port=8080, host='127.0.0.1')
